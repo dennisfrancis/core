@@ -1,12 +1,4 @@
-[submodule "dictionaries"]
-	path = dictionaries
-	url = https://gerrit.libreoffice.org/dictionaries
-	branch = .
-[submodule "helpcontent2"]
-	path = helpcontent2
-	url = https://gerrit.libreoffice.org/help
-	branch = .
-[submodule "translations"]
-	path = translations
-	url = https://gerrit.libreoffice.org/translations
-	branch = .
+[submodule "online"]
+	path = online
+	url = git@github.com:dennisfrancis/online.git
+	branch = gitpod-master
