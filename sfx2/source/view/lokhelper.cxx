@@ -30,6 +30,8 @@
 
 #include <shellimpl.hxx>
 
+#include <boost/property_tree/json_parser.hpp>
+
 using namespace com::sun::star;
 
 namespace {
@@ -242,6 +244,16 @@ static OString lcl_escapeQuotes(const OString &rStr)
     return aBuf.makeStringAndClear();
 }
 
+static OString lcl_generateJSON(SfxViewShell* pView, const boost::property_tree::ptree& rTree)
+{
+    boost::property_tree::ptree aMessageProps = rTree;
+    aMessageProps.put("viewId", SfxLokHelper::getView(pView));
+    aMessageProps.put("part", pView->getPart());
+    std::stringstream aStream;
+    boost::property_tree::write_json(aStream, aMessageProps, false /* pretty */);
+    return OString(aStream.str().c_str()).trim();
+}
+
 void SfxLokHelper::notifyOtherView(SfxViewShell* pThisView, SfxViewShell const* pOtherView, int nType, const OString& rKey, const OString& rPayload)
 {
     if (DisableCallbacks::disabled())
@@ -254,6 +266,15 @@ void SfxLokHelper::notifyOtherView(SfxViewShell* pThisView, SfxViewShell const* 
     pOtherView->libreOfficeKitViewCallback(nType, aPayload.getStr());
 }
 
+void SfxLokHelper::notifyOtherView(SfxViewShell* pThisView, SfxViewShell const* pOtherView, int nType,
+                                   const boost::property_tree::ptree& rTree)
+{
+    if (DisableCallbacks::disabled())
+        return;
+
+    pOtherView->libreOfficeKitViewCallback(nType, lcl_generateJSON(pThisView, rTree).getStr());
+}
+
 void SfxLokHelper::notifyOtherViews(SfxViewShell* pThisView, int nType, const OString& rKey, const OString& rPayload)
 {
     if (SfxLokHelper::getViewsCount() <= 1 || DisableCallbacks::disabled())
@@ -264,6 +285,24 @@ void SfxLokHelper::notifyOtherViews(SfxViewShell* pThisView, int nType, const OS
     {
         if (pViewShell != pThisView)
             notifyOtherView(pThisView, pViewShell, nType, rKey, rPayload);
+
+        pViewShell = SfxViewShell::GetNext(*pViewShell);
+    }
+}
+
+void SfxLokHelper::notifyOtherViews(SfxViewShell* pThisView, int nType, const boost::property_tree::ptree& rTree)
+{
+    if (SfxLokHelper::getViewsCount() <= 1 || DisableCallbacks::disabled())
+        return;
+
+    // Payload is only dependent on pThisView.
+    OString aPayload = lcl_generateJSON(pThisView, rTree);
+
+    SfxViewShell* pViewShell = SfxViewShell::GetFirst();
+    while (pViewShell)
+    {
+        if (pViewShell != pThisView)
+            pViewShell->libreOfficeKitViewCallback(nType, aPayload.getStr());
 
         pViewShell = SfxViewShell::GetNext(*pViewShell);
     }
