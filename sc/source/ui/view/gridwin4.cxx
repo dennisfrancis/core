@@ -1340,9 +1340,9 @@ void ScGridWindow::PaintTile( VirtualDevice& rDevice,
     const bool bChangeZoom = (aFracX !=  origZoomX || aFracY != origZoomY);
 
     // page break zoom, and aLogicMode in ScViewData
+    pViewData->SetZoom(aFracX, aFracY, true);
     if (bChangeZoom)
     {
-        pViewData->SetZoom(aFracX, aFracY, true);
         if (ScDrawView* pDrawView = pViewData->GetScDrawView())
             pDrawView->resetGridOffsetsForAllSdrPageViews();
     }
@@ -1458,9 +1458,9 @@ void ScGridWindow::PaintTile( VirtualDevice& rDevice,
     pDoc->ResetChanged(ScRange(nTopLeftTileCol, nTopLeftTileRow, nTab, nBottomRightTileCol, nBottomRightTileRow, nTab));
     pDoc->PrepareFormulaCalc();
 
+    pViewData->SetZoom(origZoomX, origZoomY, true);
     if (bChangeZoom)
     {
-        pViewData->SetZoom(origZoomX, origZoomY, true);
         if (ScDrawView* pDrawView = pViewData->GetScDrawView())
             pDrawView->resetGridOffsetsForAllSdrPageViews();
     }
