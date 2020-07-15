@@ -50,6 +50,7 @@
 
 #include <svx/zoomslideritem.hxx>
 #include <svx/svxdlg.hxx>
+#include <comphelper/lok.hxx>
 #include <comphelper/string.hxx>
 #include <scabstdlg.hxx>
 
@@ -940,18 +941,30 @@ void ScTabViewShell::Execute( SfxRequest& rReq )
             break;
 
         case SID_WINDOW_FIX_COL:
-            {
-                FreezeSplitters( true, SC_SPLIT_METHOD_FIRST_COL);
-                rReq.Done();
-                InvalidateSplit();
-            }
-            break;
-
         case SID_WINDOW_FIX_ROW:
             {
-                FreezeSplitters( true, SC_SPLIT_METHOD_FIRST_ROW);
-                rReq.Done();
-                InvalidateSplit();
+                bool bIsCol = (nSlot == SID_WINDOW_FIX_COL);
+                sal_Int32 nFreezeIndex = 1;
+                if (const SfxInt32Item* pItem = rReq.GetArg<SfxInt32Item>(nSlot))
+                {
+                    nFreezeIndex = pItem->GetValue();
+                    if (nFreezeIndex < 0)
+                        nFreezeIndex = 0;
+                }
+
+                if (comphelper::LibreOfficeKit::isActive())
+                {
+                    bool bChanged = GetViewData().SetLOKSheetFreezeIndex(nFreezeIndex, bIsCol);
+                    rReq.Done();
+                    if (bChanged)
+                        rBindings.Invalidate(nSlot);
+                }
+                else
+                {
+                    FreezeSplitters( true, bIsCol ? SC_SPLIT_METHOD_COL : SC_SPLIT_METHOD_ROW, nFreezeIndex);
+                    rReq.Done();
+                    InvalidateSplit();
+                }
             }
             break;
 
