@@ -979,7 +979,7 @@ OString ScDocument::dumpSheetGeomData(SCTAB nTab, bool bColumns, SheetGeomType e
 
 SCCOL ScDocument::GetLOKFreezeCol(SCTAB nTab) const
 {
-    ScTable* pTab = FetchTable(nTab);
+    const ScTable* pTab = FetchTable(nTab);
     if (!pTab)
         return -1;
 
@@ -987,7 +987,7 @@ SCCOL ScDocument::GetLOKFreezeCol(SCTAB nTab) const
 }
 SCROW ScDocument::GetLOKFreezeRow(SCTAB nTab) const
 {
-    ScTable* pTab = FetchTable(nTab);
+    const ScTable* pTab = FetchTable(nTab);
     if (!pTab)
         return -1;
 
