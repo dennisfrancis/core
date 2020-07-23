@@ -74,7 +74,7 @@ public:
     static void setDeviceFormFactor(const OUString& rDeviceFormFactor);
     /// Iterate over any view shell (that has the same document-id as pThisViewShell), passing it to the f function.
     template<typename ViewShellType, typename FunctionType>
-    static void forEachViewOfDoc(ViewShellType* pThisViewShell, FunctionType f, bool bIncludeThis = true)
+    static void forEachViewOfDoc(ViewShellType* pThisViewShell, FunctionType f, bool bIncludeThis = true);
     /// Iterate over any view shell (that has the same document-id as pThisViewShell), except pThisViewShell, passing it to the f function.
     template<typename ViewShellType, typename FunctionType>
     static void forEachOtherView(ViewShellType* pThisViewShell, FunctionType f);
@@ -124,7 +124,7 @@ public:
 };
 
 template<typename ViewShellType, typename FunctionType>
-void SfxLokHelper::forEachViewOfDoc(ViewShellType* pThisViewShell, FunctionType f, bool bIncludeThis = true)
+void SfxLokHelper::forEachViewOfDoc(ViewShellType* pThisViewShell, FunctionType f, bool bIncludeThis)
 {
     SfxViewShell* pViewShell = SfxViewShell::GetFirst();
     while (pViewShell)
