@@ -72,7 +72,10 @@ public:
     static LOKDeviceFormFactor getDeviceFormFactor();
     /// Set the device form factor that should be used for a new view.
     static void setDeviceFormFactor(const OUString& rDeviceFormFactor);
-    /// Iterate over any view shell, except pThisViewShell, passing it to the f function.
+    /// Iterate over any view shell (that has the same document-id as pThisViewShell), passing it to the f function.
+    template<typename ViewShellType, typename FunctionType>
+    static void forEachViewOfDoc(ViewShellType* pThisViewShell, FunctionType f, bool bIncludeThis = true)
+    /// Iterate over any view shell (that has the same document-id as pThisViewShell), except pThisViewShell, passing it to the f function.
     template<typename ViewShellType, typename FunctionType>
     static void forEachOtherView(ViewShellType* pThisViewShell, FunctionType f);
     /// Invoke the LOK callback of all other views showing the same document as pThisView, with a payload of rKey-rPayload.
@@ -121,18 +124,26 @@ public:
 };
 
 template<typename ViewShellType, typename FunctionType>
-void SfxLokHelper::forEachOtherView(ViewShellType* pThisViewShell, FunctionType f)
+void SfxLokHelper::forEachViewOfDoc(ViewShellType* pThisViewShell, FunctionType f, bool bIncludeThis = true)
 {
     SfxViewShell* pViewShell = SfxViewShell::GetFirst();
     while (pViewShell)
     {
         auto pOtherViewShell = dynamic_cast<ViewShellType*>(pViewShell);
-        if (pOtherViewShell != nullptr && pOtherViewShell != pThisViewShell && pOtherViewShell->GetDocId() == pThisViewShell->GetDocId())
+        if (pOtherViewShell != nullptr &&
+            (bIncludeThis || (pOtherViewShell != pThisViewShell)) &&
+            pOtherViewShell->GetDocId() == pThisViewShell->GetDocId())
         {
             f(pOtherViewShell);
         }
         pViewShell = SfxViewShell::GetNext(*pViewShell);
     }
+}
+
+template<typename ViewShellType, typename FunctionType>
+void SfxLokHelper::forEachOtherView(ViewShellType* pThisViewShell, FunctionType f)
+{
+    SfxLokHelper::forEachViewOfDoc(pThisViewShell, f, false /* bIncludeThis */);
 }
 
 #endif

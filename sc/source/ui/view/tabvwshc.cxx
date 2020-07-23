@@ -52,6 +52,7 @@
 #include <condformatdlgitem.hxx>
 #include <formdata.hxx>
 #include <inputwin.hxx>
+#include <viewdata.hxx>
 
 #include <RandomNumberGeneratorDialog.hxx>
 #include <SamplingDialog.hxx>
@@ -72,6 +73,7 @@
 
 #include <comphelper/lok.hxx>
 #include <LibreOfficeKit/LibreOfficeKitEnums.h>
+#include <sfx2/lokhelper.hxx>
 
 void ScTabViewShell::SetCurRefDlgId( sal_uInt16 nNew )
 {
@@ -731,6 +733,22 @@ void ScTabViewShell::InitFormEditData()
 void ScTabViewShell::ClearFormEditData()
 {
     mpFormEditData.reset();
+}
+
+void ScTabViewShell::invalidateLOKHeightLookup(SCTAB nForTab, SCROW nFromRow)
+{
+    SfxLokHelper::forEachViewOfDoc(this, [nForTab, nFromRow] (ScTabViewShell* pOneViewSh) {
+        if (ScPositionHelper* pPosHelper = pOneViewSh->GetViewData().GetLOKHeightHelper(nForTab))
+            pPosHelper->invalidateByIndex(nFromRow);
+    });
+}
+
+void ScTabViewShell::invalidateLOKWidthLookup(SCTAB nForTab, SCCOL nFromCol)
+{
+    SfxLokHelper::forEachViewOfDoc(this, [nForTab, nFromCol] (ScTabViewShell* pOneViewSh) {
+        if (ScPositionHelper* pPosHelper = pOneViewSh->GetViewData().GetLOKWidthHelper(nForTab))
+            pPosHelper->invalidateByIndex(nFromCol);
+    });
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

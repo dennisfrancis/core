@@ -402,6 +402,11 @@ public:
     void InitFormEditData();
     void ClearFormEditData();
     ScFormEditData* GetFormEditData() { return mpFormEditData.get(); }
+
+    /// Invalidates LOK vertical position/index lookup cache from 'nFromRow' onwards, for all views of the same tab and document.
+    void invalidateLOKHeightLookup(SCTAB nForTab, SCROW nFromRow);
+    /// Invalidates LOK horizontal position/index lookup cache from 'nFromCol' onwards, for all views of the same tab and document.
+    void invalidateLOKWidthLookup(SCTAB nForTab, SCCOL nFromCol);
 };
 
 #endif
